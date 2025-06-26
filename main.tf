@@ -9,6 +9,21 @@ resource "google_project_service" "secretmanager_api" {
   disable_on_destroy = false
 }
 
+resource "google_project_service" "artifactregistry_api" {
+  service = "artifactregistry.googleapis.com"
+  disable_on_destroy = false
+}
+
+# Artifact Registry repository for Docker images
+resource "google_artifact_registry_repository" "main" {
+  location      = var.region
+  repository_id = "main"
+  description   = "Docker images for application services"
+  format        = "DOCKER"
+  
+  depends_on = [google_project_service.artifactregistry_api]
+}
+
 # Secret Manager for OpenAI API Key
 resource "google_secret_manager_secret" "openai_api_key" {
   secret_id = "openai-api-key"
@@ -80,6 +95,18 @@ resource "google_cloud_run_v2_service" "api" {
           memory = var.api_memory
         }
         startup_cpu_boost = true
+      }
+      
+      # Health check configuration
+      liveness_probe {
+        http_get {
+          path = "/health"
+          port = 8080
+        }
+        initial_delay_seconds = 10
+        period_seconds        = 30
+        timeout_seconds       = 5
+        failure_threshold     = 3
       }
     }
     

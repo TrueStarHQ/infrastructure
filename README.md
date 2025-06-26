@@ -6,7 +6,8 @@ This directory contains infrastructure as code for configuring TrueStar's produc
 
 ## What this creates
 
-- **Google Cloud Run Service**: Hosts the TrueStar API
+- **Google Cloud Run Service**: Hosts the TrueStar API with health checks
+- **Artifact Registry Repository**: Stores Docker images for deployment
 - **Secret Manager**: Securely stores secret keys
 - **Service Account**: With appropriate permissions for the API
 - **Domain Mapping**: Optional custom domain configuration
@@ -21,7 +22,7 @@ This directory contains infrastructure as code for configuring TrueStar's produc
    ```bash
    gcloud auth login
    gcloud auth application-default login
-   gcloud config set project [TRUESTAR-PROJECT-ID]
+   gcloud config set project [PROJECT-ID]
    ```
 
 ## Setup
@@ -32,9 +33,9 @@ Run all commands from the `infrastructure/` directory:
 Terraform is configured to store its state in a Google Cloud Storage bucket. This is a one-time setup per project.
 
 ```bash
-# Replace [PROJECT-ID] with your actual project ID
-gsutil mb -p [PROJECT-ID] gs://terraform-state
-gsutil versioning set on gs://terraform-state
+# Replace [PROJECT-ID] with the actual project ID
+gsutil mb -p [PROJECT-ID] gs://terraform-state-[PROJECT-ID]
+gsutil versioning set on gs://terraform-state-[PROJECT-ID]
 ```
 
 ### 2. Configure and deploy
@@ -42,10 +43,11 @@ gsutil versioning set on gs://terraform-state
 # Copy the example variables file
 cp terraform.tfvars.example terraform.tfvars
 
-# Edit terraform.tfvars with TrueStar's project ID and OpenAI API key
+# Edit terraform.tfvars with the project ID and other variables
 
-# Initialize Terraform (downloads providers, sets up backend)
-terraform init
+# Initialize Terraform with the state bucket
+# Replace [PROJECT-ID] with the actual project ID
+terraform init -backend-config="bucket=terraform-state-[PROJECT-ID]"
 
 # Preview what will be created
 terraform plan

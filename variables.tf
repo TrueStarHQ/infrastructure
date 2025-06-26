@@ -1,5 +1,5 @@
 variable "project_id" {
-  description = "The GCP project ID"
+  description = "The Google Cloud project ID"
   type        = string
   
   validation {
@@ -9,7 +9,7 @@ variable "project_id" {
 }
 
 variable "region" {
-  description = "The GCP region for resources"
+  description = "The Google Cloud region for resources"
   type        = string
   default     = "us-central1"
   
@@ -20,7 +20,7 @@ variable "region" {
       "asia-east1", "asia-east2", "asia-northeast1", "asia-northeast2", "asia-northeast3",
       "asia-southeast1", "asia-southeast2", "asia-south1"
     ], var.region)
-    error_message = "Region must be a valid GCP region for Cloud Run"
+    error_message = "Region must be a valid Google Cloud region for Cloud Run"
   }
 }
 
@@ -47,13 +47,13 @@ variable "openai_api_key" {
   sensitive   = true
   
   validation {
-    condition     = can(regex("^sk-[a-zA-Z0-9]{48,}$", var.openai_api_key))
+    condition     = can(regex("^sk-[a-zA-Z0-9_-]{48,}$", var.openai_api_key))
     error_message = "OpenAI API key must start with 'sk-' followed by at least 48 alphanumeric characters"
   }
 }
 
 variable "api_image" {
-  description = "Docker image for the API service (e.g., gcr.io/your-project/truestar-api:latest)"
+  description = "Docker image for the API service (e.g., us-central1-docker.pkg.dev/your-project/main/api:latest)"
   type        = string
 }
 
